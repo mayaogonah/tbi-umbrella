@@ -40,8 +40,8 @@ pacman::p_load(
 
 Here I import an Excel file which includes extracted data from each review, including the effect sizes for each health outcome.
 ```{r}
-data <- read.xlsx("forest_plot.xlsx")
-data_rob1 <- read.xlsx("amstar2_rob.xlsx")
+data <- read.xlsx("data/forest_plot.xlsx")
+data_rob1 <- read.xlsx("data/amstar2_rob.xlsx")
 ```
 
 ## Prisma flow diagram 
