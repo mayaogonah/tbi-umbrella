@@ -1,31 +1,24 @@
 ---
 title: "Health Outcomes Following TBI"
-description: "An umbrella review of a wide range of health outcomes following traumatic brain injury (TBI). This document is an accompanying file of the paper: Ogonah et al. An umbrella review of health outcomes following traumatic brain injury. Nature Mental Health. Jan 2025."
-doi: 10.1038/s44220-024-00356-5
+subtitle: "An umbrella review of a wide range of health outcomes following traumatic brain injury (TBI). This document is an accompanying file of the paper: Ogonah et al. <strong>An umbrella review of health outcomes following traumatic brain injury.</strong> <i>Nature Mental Health.</i> Jan 2025. <a href='https://www.nature.com/articles/s44220-024-00356-5'>10.1038/s44220-024-00356-5. </a>"
 
+format:
+  lumo-html: 
+    #logo:  #optional: add your logo to the doc header
+    primary-color: "#b5cef7"
+    github-repo: "https://github.com/mayaogonah" 
+    self-contained: true
+    is-particlejs-enabled: true  # optional: display interactive particles in the doc header
+    #bg-image:  # optional: add a background image
 
-author:
-    name: "Maya Ogonah"
-    affiliation: "University of Oxford"
-    email: maya.ogonah@psych.ox.ac.uk
-    
-code-fold: true 
-code-summary: "Show the code"
-    
+author: Maya Ogonah, University of Oxford
 date: today
-toc: true
-toc_float: true
-toc-location: left
-number-sections: true
-
-title-block-banner: "#f0f3f5"
-title-block-banner-color: "black"
+    
 ---
 
 ## Libraries and data
 
-Load packages
-
+All packages are loaded before analysis.
 ```{r, message=FALSE, results='hide'}
 if (!require("pacman")) install.packages("pacman")
 
@@ -45,16 +38,29 @@ pacman::p_load(
   )
 ```
 
-Load data
-
+Here I import an Excel file which includes extracted data from each review, including the effect sizes for each health outcome.
 ```{r}
 data <- read.xlsx("forest_plot.xlsx")
 data_rob1 <- read.xlsx("amstar2_rob.xlsx")
 ```
 
+## Prisma flow diagram 
+
+::: {.cell .page-columns .page-full .column-screen .grey-section}
+The Prisma flow diagram was created using a [Shiny tool](https://estech.shinyapps.io/prisma_flowdiagram/).
+:::
+
+
+## Quality assessment 
+
+::: {.cell .page-columns .page-full .column-screen .grey-section}
+The [Robvis tool](https://mcguinlu.shinyapps.io/robvis/) was used to create the AMSTAR 2 across domains diagram. 
+:::
 
 ## Forest plot
 
+Risk estimates of health outcomes following TBI were visually displayed on a forest plot
+using the ‘metafor’ package.
 ```{r, fig.width=12, fig.height=8}
 shapes = c(15, 17, 18)
 shapes <- shapes[as.numeric(data$Group)]
@@ -83,6 +89,8 @@ shapes <- shapes[as.numeric(data$Group)]
 ```
 
 ## Converting effect sizes
+
+Where presented, all effect sizes and confidence intervals (except hazard ratios, which cannot be transformed) were converted to risk ratios for better communication of research findings and to enable comparison across outcomes.
 
 ### Hedge's g to RR
 
@@ -133,3 +141,40 @@ risk_ratio <- prevalence_ratio / (1 - prevalence_reference + (prevalence_referen
   ul_risk_ratio <- prevalence_ratio / (1 - ul_prevalence_reference + (ul_prevalence_reference * ul_prevalence_ratio))
 
 ```
+
+## Population attributable fractions
+
+Population attributable fractions (PAFs) were calculated for each health outcome using Levin's formula, as most included review reported unadjusted effect sizes and presented only summary data. The PAF assumes casualty and can be interpreted as the **maximum possible impact** of preventing all TBIs for an outcome. 
+
+:::callout-note
+We calculated the PAF using a conservative [12% prevalence estimate](https://karger.com/ned/article/40/3/154/210971/Prevalence-of-Traumatic-Brain-Injury-in-the) of TBI.
+:::
+
+```{r, results='hide'}
+p <- 0.12 # prevalence estimate of TBI 
+z <- 1.96 # z score for a 95% CI
+RRu <- 4.16 # risk ratio for the health outcome
+
+n <- (2508948+7352205) # study sample size
+
+# calculate PAF using Levins Formula
+PAF <- p * (RRu - 1) / (1 + p * (RRu - 1))
+
+# convert PAF to percentage
+PAF_percentage <- PAF * 100
+
+# calculate standard error (SE)
+SE <- sqrt(p * (1 - p) / (n * (RRu - 1)^2))
+
+# calculate margin of error
+MOE <- z * SE
+
+# Cclculate 95% CI
+lower_CI <- (PAF - MOE) * 100
+upper_CI <- (PAF + MOE) * 100
+
+# print the results
+cat("Population Attributable Fraction (PAF):", PAF_percentage, "%\n")
+cat("95% Confidence Interval:", lower_CI, "% to", upper_CI, "%\n")
+```
+
