@@ -61,7 +61,7 @@ The [Robvis tool](https://mcguinlu.shinyapps.io/robvis/) was used to create the 
 
 Risk estimates of health outcomes following TBI were visually displayed on a forest plot
 using the ‘metafor’ package.
-```{r, fig.width=12, fig.height=8}
+```{r, fig.width=13, fig.height=8}
 shapes = c(15, 17, 18)
 shapes <- shapes[as.numeric(data$Group)]
 
